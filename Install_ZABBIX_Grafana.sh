@@ -22,13 +22,17 @@ check_status() {
 
 echo "--- 🛠️ INICIANDO INSTALAÇÃO AUTOMÁTICA DO ZABBIX 7.4 no Oracle Linux 9 ---"
 
+## 1. Update do SO
+echo "1/11: Update do SO"
+sudo dnf -y update
+
 ## 1. Instalar Repositório Zabbix
-echo "1/10: Configurando o repositório Zabbix..."
+echo "2/11: Configurando o repositório Zabbix..."
 sudo rpm -Uvh https://repo.zabbix.com/zabbix/7.4/release/oracle/9/noarch/zabbix-release-latest-7.4.el9.noarch.rpm
 check_status
 
 ## 2. Instalar Banco de Dados e Componentes Zabbix
-echo "2/10: Instalando MariaDB, Zabbix Server, Frontend e Agent..."
+echo "3/11: Instalando MariaDB, Zabbix Server, Frontend e Agent..."
 sudo dnf install -y mariadb-server \
                    zabbix-server-mysql zabbix-web-mysql \
                    zabbix-apache-conf zabbix-sql-scripts \
@@ -37,7 +41,7 @@ sudo dnf install -y mariadb-server \
 check_status
 
 ## 3. Configurar e Inicializar MariaDB (MySQL)
-echo "3/10: Inicializando e configurando o MariaDB..."
+echo "4/11: Inicializando e configurando o MariaDB..."
 sudo systemctl enable --now mariadb
 check_status
 
@@ -61,20 +65,20 @@ sudo mysql -u root -p"$DB_ROOT_PASSWORD" -e "SET GLOBAL log_bin_trust_function_c
 check_status
 
 ## 4. Configurar Zabbix Server
-echo "4/10: Configurando o arquivo zabbix_server.conf..."
+echo "5/11: Configurando o arquivo zabbix_server.conf..."
 sudo sed -i "s/# DBPassword=/DBPassword=$ZABBIX_DB_PASSWORD/" /etc/zabbix/zabbix_server.conf
 sudo sed -i "s/# DBName=zabbix/DBName=$ZABBIX_DB_NAME/" /etc/zabbix/zabbix_server.conf
 sudo sed -i "s/# DBUser=zabbix/DBUser=$ZABBIX_DB_USER/" /etc/zabbix/zabbix_server.conf
 check_status
 
 ## 5. Configurar o PHP para o Frontend Web
-echo "5/10: Configurando o PHP (timezone) para o frontend web..."
+echo "6/11: Configurando o PHP (timezone) para o frontend web..."
 # Substitua 'America/Sao_Paulo' pelo seu fuso horário, se necessário
 sudo sed -i 's/;date.timezone =/date.timezone = America\/Maceio/' /etc/php-fpm.d/zabbix.conf
 check_status
 
 ## 6. Configurar e Iniciar Serviços
-echo "6/10: Habilitando e iniciando os serviços Zabbix, Apache e PHP-FPM..."
+echo "7/11: Habilitando e iniciando os serviços Zabbix, Apache e PHP-FPM..."
 sudo systemctl enable --now zabbix-server
 sudo systemctl enable --now httpd
 sudo systemctl enable --now php-fpm
@@ -82,25 +86,25 @@ sudo systemctl restart zabbix-server httpd php-fpm
 check_status
 
 ## 7. Configurar Firewall (Firewalld)
-echo "7/10: Configurando o Firewall..."
+echo "8/11: Configurando o Firewall..."
 sudo firewall-cmd --add-service={http,https} --permanent
 sudo firewall-cmd --add-port=10050/tcp --permanent  # Porta do Zabbix Server
 sudo firewall-cmd --reload
 check_status
 
 ## 8. Instalar Repositório Grafana
-echo "8/10: Configurando o Firewall..."
+echo "9/11: Configurando o Firewall..."
 echo "--- 🛠️ INICIANDO INSTALAÇÃO AUTOMÁTICA DO Grafana 12.2.0 no Oracle Linux 9 ---"
 sudo dnf install -y https://dl.grafana.com/grafana-enterprise/release/12.2.0/grafana-enterprise_12.2.0_17949786146_linux_amd64.rpm
 
 ## 9. Configurar Firewall (Firewalld)
-echo "9/10: Configurando o Firewall..."
+echo "10/11: Configurando o Firewall..."
 sudo firewall-cmd --add-port=3000/tcp --permanent  # Porta do Zabbix Server
 sudo firewall-cmd --reload
 check_status
 
 ## 10. Configurar e Iniciar Serviços
-echo "10/10: Habilitando e iniciando os serviços Zabbix, Apache e PHP-FPM..."
+echo "11/11: Habilitando e iniciando os serviços Zabbix, Apache e PHP-FPM..."
 sudo systemctl start grafana-server
 sudo systemctl enable --now grafana-server
 check_status
