@@ -29,7 +29,7 @@ sudo dnf -y update
 ## 1. Instalar Repositório Zabbix
 echo "2/11: Configurando o repositório Zabbix..."
 sudo rpm -Uvh https://repo.zabbix.com/zabbix/7.4/release/oracle/9/noarch/zabbix-release-latest-7.4.el9.noarch.rpm
-check_status
+dnf clean all
 
 ## 2. Instalar Banco de Dados e Componentes Zabbix
 echo "3/11: Instalando MariaDB, Zabbix Server, Frontend e Agent..."
