@@ -89,6 +89,11 @@ check_status
 echo "8/11: Configurando o Firewall..."
 sudo firewall-cmd --add-service={http,https} --permanent
 sudo firewall-cmd --add-port=10050/tcp --permanent  # Porta do Zabbix Server
+sudo firewall-cmd --add-port=10051/tcp --permanent  # Porta do Zabbix Server
+sudo firewall-cmd --add-port=161/tcp --permanent  # Porta do Zabbix Server
+sudo firewall-cmd --add-port=162/tcp --permanent  # Porta do Zabbix Server
+sudo firewall-cmd --add-port=80/tcp --permanent  # Porta do Zabbix Server
+sudo firewall-cmd --add-port=443/tcp --permanent  # Porta do Zabbix Server
 sudo firewall-cmd --reload
 check_status
 
